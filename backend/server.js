@@ -30,25 +30,28 @@ app.use("/admin-api", adminRoute);
 app.use("/common-api", commonRouter);
 
 //connect to db
-const connectDB = async () => {
-  const dbUrl = process.env.DB_URL;
-  if (!dbUrl) {
-    console.error("❌ CRITICAL ERROR: DB_URL environment variable is not defined!");
-    console.error("Please add DB_URL to your environment variables in the Render dashboard.");
-    process.exit(1);
-  }
+const port = process.env.PORT || 5555;
+const dbUrl = process.env.DB_URL;
 
-  const port = process.env.PORT || 5555;
+// Start HTTP server immediately so Render marks the deployment as successful
+app.listen(port, () => {
+  console.log(`🚀 Server started on port ${port}`);
+});
+
+// Connect to MongoDB in the background
+const connectDB = async () => {
+  if (!dbUrl) {
+    console.error("⚠️ WARNING: DB_URL environment variable is not defined!");
+    console.error("Please add DB_URL to your environment variables in the Render dashboard.");
+    return;
+  }
 
   try {
     await connect(dbUrl);
     console.log("💚 DB connection success");
-
-    //start http server
-    app.listen(port, () => console.log(`🚀 Server started on port ${port}`));
   } catch (err) {
     console.error("❌ Error in DB connection:", err);
-    process.exit(1);
+    console.error("👉 ACTION REQUIRED: Please ensure your MongoDB Atlas IP Access List allows connections from anywhere (0.0.0.0/0) so Render can connect.");
   }
 };
 
