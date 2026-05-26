@@ -33,7 +33,7 @@ function AuthorArticles() {
       setLoading(true);
 
       try {
-        const res = await axios.get(`http://localhost:5555/author-api/articles/${user.userId}`, { withCredentials: true });
+        const res = await axios.get(`/author-api/articles/${user.userId}`, { withCredentials: true });
 
         setArticles(res.data.payload);
       } catch (err) {
