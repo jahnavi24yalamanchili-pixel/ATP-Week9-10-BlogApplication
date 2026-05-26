@@ -13,7 +13,11 @@ config(); //process.env
 //Create express application
 const app = exp();
 //use cors middleware
-app.use(cors({ origin: ["http://localhost:5173"], credentials: true }));
+const allowedOrigins = ["http://localhost:5173"];
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 //add body parser middleware
 app.use(exp.json());
 //add cookie parser middleware
@@ -27,14 +31,24 @@ app.use("/common-api", commonRouter);
 
 //connect to db
 const connectDB = async () => {
+  const dbUrl = process.env.DB_URL;
+  if (!dbUrl) {
+    console.error("❌ CRITICAL ERROR: DB_URL environment variable is not defined!");
+    console.error("Please add DB_URL to your environment variables in the Render dashboard.");
+    process.exit(1);
+  }
+
+  const port = process.env.PORT || 5555;
+
   try {
-    await connect(process.env.DB_URL);
-    console.log("DB connection success");
+    await connect(dbUrl);
+    console.log("💚 DB connection success");
 
     //start http server
-    app.listen(process.env.PORT, () => console.log(`server started on port ${process.env.PORT}`));
+    app.listen(port, () => console.log(`🚀 Server started on port ${port}`));
   } catch (err) {
-    console.log("Err in DB connection", err);
+    console.error("❌ Error in DB connection:", err);
+    process.exit(1);
   }
 };
 
