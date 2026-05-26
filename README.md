@@ -1,5 +1,7 @@
 ## Project Overview
 
+DEPLOYMENT LINK : https://week-9-10.vercel.app/
+
 This application supports three account types:
 
 - `USER`: reads active articles and comments on them.
