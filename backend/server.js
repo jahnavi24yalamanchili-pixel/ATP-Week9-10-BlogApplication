@@ -17,7 +17,25 @@ const allowedOrigins = ["http://localhost:5173"];
 if (process.env.FRONTEND_URL) {
   allowedOrigins.push(process.env.FRONTEND_URL);
 }
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+      if (!origin) return callback(null, true);
+
+      const isAllowed = allowedOrigins.includes(origin);
+      const isVercelPreview = origin.endsWith(".vercel.app") || origin.includes("vercel.app");
+
+      if (isAllowed || isVercelPreview) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 //add body parser middleware
 app.use(exp.json());
 //add cookie parser middleware
